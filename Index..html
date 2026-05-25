@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ferretería Digital · Sistema Integral con Subasta Inversa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@400;500;600;700;800&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#131210; --bg-1:#1a1813; --bg-2:#221f18; --bg-3:#2c281e;
+  --line:#3a3527; --line-soft:#2c2920;
+  --ink:#f3efe3; --ink-2:#b3ad99; --ink-3:#787260;
+  --amber:#ffb01f; --amber-2:#e08a00; --amber-deep:#b56b00;
+  --glow:rgba(255,176,31,.13);
+  --steel:#74a9c9; --steel-bg:rgba(116,169,201,.12);
+  --green:#5fc27e; --green-bg:rgba(95,194,126,.12);
+  --yellow:#f2c14e; --yellow-bg:rgba(242,193,78,.12);
+  --red:#ec6a4c; --red-bg:rgba(236,106,76,.13);
+  --rad:4px;
+  --shadow:0 18px 50px -18px rgba(0,0,0,.7);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'IBM Plex Sans',sans-serif;
+  font-weight:400;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:-2;
+  background:
+    radial-gradient(900px 500px at 88% -5%, var(--glow), transparent 60%),
+    radial-gradient(700px 600px at 5% 105%, rgba(116,169,201,.07), transparent 60%);
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:-1;opacity:.5;
+  background-image:
+    linear-gradient(var(--line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+  background-size:62px 62px;
+  -webkit-mask-image:radial-gradient(circle at 50% 40%, #000 0%, transparent 78%);
+  mask-image:radial-gradient(circle at 50% 40%, #000 0%, transparent 78%);
+}
+h1,h2,h3,h4,.disp{font-family:'Saira Condensed',sans-serif;font-weight:700;letter-spacing:.01em;line-height:1.08}
+.mono{font-family:'IBM Plex Mono',monospace}
+a{color:inherit}
+::selection{background:var(--amber);color:#1a1308}
+
+/* ---------- HEADER / NAV ---------- */
+header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(19,18,16,.86);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.nav-inner{
+  max-width:1320px;margin:0 auto;padding:0 22px;
+  display:flex;align-items:center;gap:26px;height:66px;
+}
+.brand{display:flex;align-items:center;gap:11px;cursor:pointer;flex-shrink:0}
+.brand .gear{width:34px;height:34px;flex-shrink:0}
+.brand-txt b{font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:18px;letter-spacing:.04em;display:block;line-height:1}
+.brand-txt span{font-size:9.5px;letter-spacing:.32em;color:var(--amber);text-transform:uppercase;font-weight:600}
+nav{
+  display:flex;gap:2px;margin-left:auto;
+  overflow-x:auto;scrollbar-width:none;
+}
+nav::-webkit-scrollbar{display:none}
+.nav-btn{
+  background:none;border:none;cursor:pointer;
+  font-family:'Saira Condensed',sans-serif;font-weight:600;
+  font-size:13.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-2);padding:9px 13px;border-radius:var(--rad);
+  white-space:nowrap;transition:.18s;position:relative;
+}
+.nav-btn:hover{color:var(--ink);background:var(--bg-2)}
+.nav-btn.active{color:var(--amber)}
+.nav-btn.active::after{
+  content:"";position:absolute;left:13px;right:13px;bottom:-1px;height:2px;
+  background:var(--amber);
+}
+
+/* ---------- LAYOUT ---------- */
+main{max-width:1320px;margin:0 auto;padding:0 22px}
+.view{display:none;animation:fade .45s ease}
+.view.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+section{padding:54px 0}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:9px;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--amber);
+  margin-bottom:14px;
+}
+.eyebrow::before{content:"";width:26px;height:1px;background:var(--amber)}
+.sec-title{font-size:clamp(28px,4vw,42px);margin-bottom:10px}
+.sec-sub{color:var(--ink-2);max-width:660px;font-size:15px;margin-bottom:30px}
+
+/* ---------- HERO ---------- */
+.hero{padding:74px 0 60px;position:relative}
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:10px;
+  border:1px solid var(--line);background:var(--bg-1);
+  padding:7px 13px;border-radius:100px;font-size:12px;
+  color:var(--ink-2);margin-bottom:24px;
+}
+.hero-tag .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 9px var(--green)}
+.hero h1{font-size:clamp(40px,6.6vw,82px);font-weight:800;letter-spacing:-.005em}
+.hero h1 .out{
+  -webkit-text-stroke:1.5px var(--amber);color:transparent;
+}
+.hero h1 .fill{color:var(--amber)}
+.hero-lead{color:var(--ink-2);font-size:16.5px;margin:22px 0 30px;max-width:540px}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+.btn{
+  font-family:'Saira Condensed',sans-serif;font-weight:700;
+  font-size:15px;letter-spacing:.05em;text-transform:uppercase;
+  padding:13px 24px;border-radius:var(--rad);cursor:pointer;
+  border:1px solid transparent;transition:.18s;display:inline-flex;
+  align-items:center;gap:9px;
+}
+.btn-primary{background:var(--amber);color:#1a1308;border-color:var(--amber)}
+.btn-primary:hover{background:var(--amber-2);transform:translateY(-2px)}
+.btn-ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--amber);color:var(--amber)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+.btn-sm{padding:9px 16px;font-size:13px}
+
+/* hero panel */
+.hero-panel{
+  background:var(--bg-1);border:1px solid var(--line);border-radius:8px;
+  padding:24px;position:relative;box-shadow:var(--shadow);
+}
+.hero-panel::before{
+  content:"";position:absolute;inset:0;border-radius:8px;pointer-events:none;
+  background:linear-gradient(160deg,rgba(255,176,31,.07),transparent 45%);
+}
+.hp-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.hp-head h4{font-size:18px}
+.hp-live{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.18em;
+  color:var(--green);display:flex;align-items:center;gap:6px}
+.hp-live::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--green);
+  animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.hp-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:11px 12px;border-radius:var(--rad);margin-bottom:7px;
+  background:var(--bg-2);border:1px solid var(--line-soft);font-size:13px;
+}
+.hp-row .nm{display:flex;align-items:center;gap:9px}
+.hp-row .av{width:26px;height:26px;border-radius:5px;background:var(--bg-3);
+  display:grid;place-items:center;font-family:'Saira Condensed';font-weight:700;
+  font-size:13px;color:var(--amber)}
+.hp-row .pr{font-family:'IBM Plex Mono';font-weight:600;font-size:14px}
+.hp-row.win{border-color:var(--green);background:var(--green-bg)}
+.hp-row.win .pr{color:var(--green)}
+.hp-bar{height:5px;background:var(--bg-3);border-radius:3px;margin-top:14px;overflow:hidden}
+.hp-bar i{display:block;height:100%;background:var(--amber);width:62%;border-radius:3px}
+
+/* stat strip */
+.stat-strip{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:6px;
+  margin-top:54px;overflow:hidden;
+}
+.stat-cell{background:var(--bg-1);padding:22px 20px}
+.stat-cell .v{font-family:'Saira Condensed';font-weight:800;font-size:34px;color:var(--amber);line-height:1}
+.stat-cell .l{font-size:12px;color:var(--ink-2);margin-top:6px;letter-spacing:.02em}
+
+/* ---------- CARDS / GRIDS ---------- */
+.card{
+  background:var(--bg-1);border:1px solid var(--line);border-radius:7px;
+  padding:22px;transition:.2s;
+}
+.card.hov:hover{border-color:var(--amber);transform:translateY(-3px)}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+
+/* value prop table */
+.vp-card{display:flex;flex-direction:column;gap:14px}
+.vp-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch}
+.vp-prob,.vp-sol{padding:16px;border-radius:var(--rad);font-size:14px}
+.vp-prob{background:var(--red-bg);border-left:3px solid var(--red)}
+.vp-sol{background:var(--green-bg);border-left:3px solid var(--green)}
+.vp-prob b,.vp-sol b{font-family:'Saira Condensed';font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;display:block;margin-bottom:4px}
+.vp-prob b{color:var(--red)}.vp-sol b{color:var(--green)}
+
+/* module cards */
+.mod-card{position:relative;overflow:hidden}
+.mod-id{font-family:'Saira Condensed';font-weight:800;font-size:13px;
+  color:var(--amber);letter-spacing:.1em}
+.mod-card h4{font-size:20px;margin:8px 0 7px}
+.mod-card p{font-size:13.5px;color:var(--ink-2)}
+.mod-tech{margin-top:14px;display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-family:'IBM Plex Mono';font-size:10.5px;padding:4px 9px;border-radius:3px;
+  background:var(--bg-3);border:1px solid var(--line);color:var(--ink-2)}
+.mod-card .num-bg{position:absolute;right:-8px;bottom:-26px;font-family:'Saira Condensed';
+  font-weight:800;font-size:120px;color:var(--bg-2);z-index:0;line-height:1}
+.mod-card>*{position:relative;z-index:1}
+
+/* flow steps */
+.flow{display:flex;flex-direction:column;gap:2px;margin-top:8px}
+.flow-step{display:flex;gap:16px;padding:14px 0;border-bottom:1px solid var(--line-soft)}
+.flow-step:last-child{border:none}
+.flow-n{flex-shrink:0;width:34px;height:34px;border-radius:6px;background:var(--bg-2);
+  border:1px solid var(--line);display:grid;place-items:center;
+  font-family:'Saira Condensed';font-weight:800;color:var(--amber);font-size:16px}
+.flow-step .ft b{font-family:'Saira Condensed';font-size:15px;letter-spacing:.02em}
+.flow-step .ft p{font-size:13px;color:var(--ink-2);margin-top:2px}
+
+/* ---------- TABLES ---------- */
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl th{
+  font-family:'Saira Condensed';font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;font-size:12px;color:var(--ink-2);text-align:left;
+  padding:11px 13px;border-bottom:1px solid var(--line);
+}
+.tbl td{padding:11px 13px;border-bottom:1px solid var(--line-soft)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover{background:var(--bg-2)}
+.tbl-wrap{background:var(--bg-1);border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.tbl-wrap.scroll{overflow-x:auto}
+
+/* badges */
+.bdg{font-family:'IBM Plex Mono';font-size:10.5px;font-weight:600;padding:3px 9px;
+  border-radius:3px;letter-spacing:.04em;display:inline-block;white-space:nowrap}
+.bdg.g{background:var(--green-bg);color:var(--green)}
+.bdg.y{background:var(--yellow-bg);color:var(--yellow)}
+.bdg.r{background:var(--red-bg);color:var(--red)}
+.bdg.s{background:var(--steel-bg);color:var(--steel)}
+.bdg.a{background:var(--glow);color:var(--amber)}
+
+/* ---------- AUCTION ---------- */
+.auc-wrap{display:grid;grid-template-columns:1.55fr 1fr;gap:20px}
+.auc-board{background:var(--bg-1);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.auc-head{padding:18px 22px;border-bottom:1px solid var(--line);
+  display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.auc-head h4{font-size:20px}
+.auc-head .folio{font-family:'IBM Plex Mono';font-size:11px;color:var(--ink-3);margin-top:3px}
+.timer-box{text-align:right}
+.timer{font-family:'IBM Plex Mono';font-weight:600;font-size:30px;color:var(--amber);line-height:1}
+.timer.crit{color:var(--red);animation:pulse 1s infinite}
+.timer-box .tl{font-size:10px;letter-spacing:.16em;color:var(--ink-3);text-transform:uppercase}
+.auc-items{padding:14px 22px;background:var(--bg-2);font-size:12.5px;color:var(--ink-2);
+  display:flex;gap:22px;flex-wrap:wrap}
+.auc-items span b{color:var(--ink);font-family:'IBM Plex Mono';font-size:12.5px}
+.auc-rank{padding:10px 14px}
+.bid{display:grid;grid-template-columns:auto 1fr auto auto;gap:14px;align-items:center;
+  padding:14px;border-radius:6px;margin:7px 0;background:var(--bg-2);
+  border:1px solid var(--line-soft);transition:.3s;position:relative}
+.bid.lead{border-color:var(--green);background:var(--green-bg)}
+.bid.lead::before{content:"LÍDER";position:absolute;top:-8px;left:14px;
+  font-family:'Saira Condensed';font-weight:700;font-size:9.5px;letter-spacing:.12em;
+  background:var(--green);color:#0e1a10;padding:2px 8px;border-radius:3px}
+.bid-rank{font-family:'Saira Condensed';font-weight:800;font-size:22px;color:var(--ink-3);width:26px}
+.bid.lead .bid-rank{color:var(--green)}
+.bid-av{width:40px;height:40px;border-radius:7px;background:var(--bg-3);
+  display:grid;place-items:center;font-family:'Saira Condensed';font-weight:700;
+  font-size:16px;color:var(--amber);border:1px solid var(--line)}
+.bid-info b{font-family:'Saira Condensed';font-size:16px;display:block;letter-spacing:.02em}
+.bid-info .meta{font-size:11.5px;color:var(--ink-3);font-family:'IBM Plex Mono'}
+.bid-price{text-align:right}
+.bid-price .p{font-family:'IBM Plex Mono';font-weight:600;font-size:18px}
+.bid.lead .bid-price .p{color:var(--green)}
+.bid-price .d{font-size:10.5px;color:var(--ink-3)}
+.bid-price .d.down{color:var(--green)}
+.bid-score{text-align:center;min-width:60px}
+.bid-score .sc{font-family:'Saira Condensed';font-weight:800;font-size:22px;color:var(--amber)}
+.bid-score .sl{font-size:9px;letter-spacing:.12em;color:var(--ink-3);text-transform:uppercase}
+
+.auc-side{display:flex;flex-direction:column;gap:16px}
+.weight-card .wt{display:flex;justify-content:space-between;font-size:13px;
+  padding:8px 0;border-bottom:1px solid var(--line-soft)}
+.weight-card .wt:last-child{border:none}
+.weight-card .wt .pct{font-family:'IBM Plex Mono';font-weight:600;color:var(--amber)}
+.log{background:var(--bg-2);border:1px solid var(--line-soft);border-radius:6px;
+  padding:12px;height:175px;overflow-y:auto;font-family:'IBM Plex Mono';font-size:11.5px}
+.log-line{padding:3px 0;color:var(--ink-2);border-bottom:1px dashed var(--line-soft)}
+.log-line:last-child{border:none}
+.log-line .t{color:var(--amber)}
+.log-line.win{color:var(--green)}
+.award-panel{background:var(--green-bg);border:1px solid var(--green);border-radius:7px;
+  padding:18px;display:none}
+.award-panel.show{display:block;animation:fade .4s}
+.award-panel h4{color:var(--green);font-size:18px;margin-bottom:6px}
+.award-panel p{font-size:13px;color:var(--ink-2)}
+
+/* ---------- WIZARD ---------- */
+.wiz-steps{display:flex;gap:0;margin-bottom:26px}
+.wiz-tab{flex:1;text-align:center;padding:14px 8px;border-bottom:2px solid var(--line);
+  position:relative;transition:.2s}
+.wiz-tab.active{border-color:var(--amber)}
+.wiz-tab.done{border-color:var(--green)}
+.wiz-tab .wn{font-family:'Saira Condensed';font-weight:800;font-size:13px;
+  width:26px;height:26px;border-radius:50%;display:inline-grid;place-items:center;
+  background:var(--bg-2);border:1px solid var(--line);color:var(--ink-3);margin-bottom:5px}
+.wiz-tab.active .wn{background:var(--amber);color:#1a1308;border-color:var(--amber)}
+.wiz-tab.done .wn{background:var(--green);color:#0e1a10;border-color:var(--green)}
+.wiz-tab .wl{font-family:'Saira Condensed';font-weight:600;font-size:13px;
+  display:block;color:var(--ink-2);text-transform:uppercase;letter-spacing:.04em}
+.wiz-tab.active .wl{color:var(--ink)}
+.wiz-pane{display:none}
+.wiz-pane.on{display:block;animation:fade .35s}
+
+.field{margin-bottom:16px}
+.field label{font-family:'Saira Condensed';font-weight:600;font-size:13px;
+  letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2);display:block;margin-bottom:6px}
+.field input,.field select,.field textarea{
+  width:100%;background:var(--bg-2);border:1px solid var(--line);border-radius:var(--rad);
+  padding:11px 13px;color:var(--ink);font-family:'IBM Plex Sans';font-size:14px;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  outline:none;border-color:var(--amber)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+.mat-add{display:grid;grid-template-columns:2.4fr 1fr 1fr auto;gap:10px;align-items:end}
+.mat-list{margin-top:16px}
+.mat-item{display:grid;grid-template-columns:1fr auto auto auto;gap:12px;
+  align-items:center;padding:11px 14px;background:var(--bg-2);
+  border:1px solid var(--line-soft);border-radius:var(--rad);margin-bottom:7px;font-size:13.5px}
+.mat-item .mq{font-family:'IBM Plex Mono';color:var(--amber)}
+.mat-item .x{cursor:pointer;color:var(--ink-3);font-size:18px;line-height:1;
+  background:none;border:none}
+.mat-item .x:hover{color:var(--red)}
+.empty{text-align:center;padding:26px;color:var(--ink-3);font-size:13px;
+  border:1px dashed var(--line);border-radius:var(--rad)}
+
+.wiz-nav{display:flex;justify-content:space-between;margin-top:24px}
+.review-box{background:var(--bg-2);border:1px solid var(--line);border-radius:6px;padding:18px}
+.review-box .rr{display:flex;justify-content:space-between;padding:7px 0;
+  border-bottom:1px solid var(--line-soft);font-size:13.5px}
+.review-box .rr:last-child{border:none}
+.review-box .rr .rk{color:var(--ink-2)}
+.review-box .rr .rv{font-family:'IBM Plex Mono';font-weight:500}
+
+.success-card{text-align:center;padding:40px 24px;background:var(--green-bg);
+  border:1px solid var(--green);border-radius:8px;display:none}
+.success-card.show{display:block;animation:fade .4s}
+.success-card .chk{width:60px;height:60px;border-radius:50%;background:var(--green);
+  display:grid;place-items:center;margin:0 auto 16px}
+.success-card h3{color:var(--green);font-size:24px;margin-bottom:6px}
+.success-card .folio-big{font-family:'IBM Plex Mono';font-size:22px;color:var(--amber);
+  margin:12px 0;letter-spacing:.05em}
+
+/* ---------- DASHBOARD ---------- */
+.kpi{display:flex;flex-direction:column;gap:6px}
+.kpi .kv{font-family:'Saira Condensed';font-weight:800;font-size:38px;line-height:1;color:var(--ink)}
+.kpi .kv .u{font-size:18px;color:var(--ink-2)}
+.kpi .kl{font-size:12.5px;color:var(--ink-2)}
+.kpi .kt{font-family:'IBM Plex Mono';font-size:11px;display:flex;align-items:center;gap:5px}
+.kpi .kt.up{color:var(--green)}.kpi .kt.dn{color:var(--red)}
+.kpi-ic{width:36px;height:36px;border-radius:7px;background:var(--glow);
+  display:grid;place-items:center;margin-bottom:4px}
+
+/* seasonality chart */
+.chart-card{background:var(--bg-1);border:1px solid var(--line);border-radius:7px;padding:24px}
+.season-chart{display:flex;align-items:flex-end;gap:8px;height:230px;
+  margin-top:14px;padding-top:10px;position:relative}
+.season-chart .baseline{position:absolute;left:0;right:0;border-top:1px dashed var(--steel);
+  z-index:1}
+.season-chart .baseline span{position:absolute;right:0;top:-9px;font-family:'IBM Plex Mono';
+  font-size:9.5px;color:var(--steel);background:var(--bg-1);padding:0 4px}
+.sc-bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;
+  justify-content:flex-end;position:relative}
+.sc-bar .col{width:100%;border-radius:3px 3px 0 0;transition:height .7s cubic-bezier(.2,.8,.2,1);
+  position:relative;min-height:4px}
+.sc-bar .col.g{background:linear-gradient(var(--green),rgba(95,194,126,.35))}
+.sc-bar .col.y{background:linear-gradient(var(--yellow),rgba(242,193,78,.35))}
+.sc-bar .col.r{background:linear-gradient(var(--red),rgba(236,106,76,.4))}
+.sc-bar .val{position:absolute;top:-18px;font-family:'IBM Plex Mono';font-size:10px;
+  color:var(--ink-2);width:100%;text-align:center}
+.sc-bar .mo{font-family:'Saira Condensed';font-weight:600;font-size:11px;color:var(--ink-3)}
+.legend{display:flex;gap:18px;margin-top:18px;flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2)}
+.legend i{width:11px;height:11px;border-radius:2px}
+
+.alert-list{display:flex;flex-direction:column;gap:9px}
+.alert-it{display:flex;gap:12px;padding:13px;border-radius:6px;align-items:flex-start}
+.alert-it.r{background:var(--red-bg);border-left:3px solid var(--red)}
+.alert-it.y{background:var(--yellow-bg);border-left:3px solid var(--yellow)}
+.alert-it.g{background:var(--green-bg);border-left:3px solid var(--green)}
+.alert-it .ai{width:30px;height:30px;border-radius:6px;flex-shrink:0;display:grid;
+  place-items:center;font-family:'Saira Condensed';font-weight:800;font-size:13px}
+.alert-it.r .ai{background:var(--red);color:#1a0d0a}
+.alert-it.y .ai{background:var(--yellow);color:#1a1408}
+.alert-it.g .ai{background:var(--green);color:#0d1a10}
+.alert-it b{font-family:'Saira Condensed';font-size:14.5px;display:block}
+.alert-it p{font-size:12.5px;color:var(--ink-2);margin-top:1px}
+
+/* ---------- SUPPLIERS ---------- */
+.sup-card{position:relative}
+.sup-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.sup-id{display:flex;gap:12px;align-items:center}
+.sup-av{width:46px;height:46px;border-radius:8px;background:var(--bg-3);
+  border:1px solid var(--line);display:grid;place-items:center;
+  font-family:'Saira Condensed';font-weight:800;font-size:18px;color:var(--amber)}
+.sup-id b{font-family:'Saira Condensed';font-size:17px;display:block;letter-spacing:.02em}
+.sup-id .cat{font-size:11.5px;color:var(--ink-3);font-family:'IBM Plex Mono'}
+.score-ring{text-align:center}
+.score-ring .sv{font-family:'Saira Condensed';font-weight:800;font-size:30px;line-height:1}
+.score-ring .sl{font-size:9px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase}
+.sup-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+.sup-stat{background:var(--bg-2);border-radius:var(--rad);padding:9px 11px}
+.sup-stat .v{font-family:'IBM Plex Mono';font-weight:600;font-size:15px;color:var(--ink)}
+.sup-stat .l{font-size:10.5px;color:var(--ink-3)}
+.score-bar{height:6px;background:var(--bg-3);border-radius:3px;margin-top:13px;overflow:hidden}
+.score-bar i{display:block;height:100%;border-radius:3px}
+
+/* ---------- RISK MATRIX ---------- */
+.risk-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.risk-card{background:var(--bg-1);border:1px solid var(--line);border-radius:7px;
+  padding:18px;border-left-width:3px}
+.risk-card.critico{border-left-color:var(--red)}
+.risk-card.alto{border-left-color:var(--yellow)}
+.risk-card.medio{border-left-color:var(--steel)}
+.risk-card h4{font-size:15.5px;margin-bottom:10px;display:flex;justify-content:space-between;
+  align-items:center;gap:10px}
+.risk-meters{display:flex;gap:18px;font-size:12px;color:var(--ink-2)}
+.risk-meters .rm b{font-family:'IBM Plex Mono';color:var(--ink);display:block;font-size:14px}
+
+.proto{background:var(--bg-1);border:1px solid var(--line);border-radius:7px;
+  margin-bottom:12px;overflow:hidden}
+.proto-head{padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;
+  align-items:center;gap:14px;transition:.18s}
+.proto-head:hover{background:var(--bg-2)}
+.proto-tag{font-family:'Saira Condensed';font-weight:800;font-size:14px;color:#1a1308;
+  background:var(--amber);padding:4px 10px;border-radius:4px;flex-shrink:0}
+.proto-head h4{font-size:16px;flex:1}
+.proto-head .arr{font-size:13px;color:var(--ink-3);transition:.25s}
+.proto.open .arr{transform:rotate(90deg);color:var(--amber)}
+.proto-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.proto.open .proto-body{max-height:600px}
+.proto-body-in{padding:0 20px 18px;border-top:1px solid var(--line-soft)}
+.proto-phase{display:flex;gap:13px;padding:12px 0;border-bottom:1px solid var(--line-soft)}
+.proto-phase:last-child{border:none}
+.proto-phase .ph-t{font-family:'Saira Condensed';font-weight:700;font-size:12px;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--amber);flex-shrink:0;width:130px}
+.proto-phase p{font-size:13px;color:var(--ink-2)}
+
+/* ---------- TIMELINE ---------- */
+.tl{position:relative;padding-left:34px}
+.tl::before{content:"";position:absolute;left:11px;top:6px;bottom:6px;width:2px;
+  background:var(--line)}
+.tl-item{position:relative;padding-bottom:22px}
+.tl-item:last-child{padding-bottom:0}
+.tl-dot{position:absolute;left:-34px;top:2px;width:24px;height:24px;border-radius:50%;
+  background:var(--bg-2);border:2px solid var(--amber);display:grid;place-items:center;
+  font-family:'Saira Condensed';font-weight:800;font-size:11px;color:var(--amber)}
+.tl-item .tl-head{display:flex;justify-content:space-between;align-items:baseline;
+  gap:12px;flex-wrap:wrap;margin-bottom:4px}
+.tl-item h4{font-size:16.5px}
+.tl-item .tl-meta{font-family:'IBM Plex Mono';font-size:11.5px;color:var(--amber)}
+.tl-item p{font-size:13px;color:var(--ink-2)}
+
+.budget-total{display:flex;justify-content:space-between;align-items:center;
+  background:var(--glow);border:1px solid var(--amber);border-radius:7px;
+  padding:18px 22px;margin-top:16px}
+.budget-total .bl{font-family:'Saira Condensed';font-weight:700;font-size:16px;
+  text-transform:uppercase;letter-spacing:.04em}
+.budget-total .bv{font-family:'Saira Condensed';font-weight:800;font-size:30px;color:var(--amber)}
+
+/* hazard band */
+.hazard{height:10px;background:repeating-linear-gradient(45deg,
+  var(--amber) 0 18px,#13110d 18px 36px);opacity:.85;margin:0}
+
+/* ---------- FOOTER ---------- */
+footer{border-top:1px solid var(--line);margin-top:40px;padding:40px 0 30px;
+  background:var(--bg-1)}
+.foot-in{max-width:1320px;margin:0 auto;padding:0 22px;
+  display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap}
+.foot-in .fb{max-width:340px}
+.foot-in .fb p{font-size:12.5px;color:var(--ink-3);margin-top:10px}
+.foot-cols{display:flex;gap:50px;flex-wrap:wrap}
+.foot-col h5{font-family:'Saira Condensed';font-weight:700;font-size:12px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);margin-bottom:10px}
+.foot-col a{display:block;font-size:13px;color:var(--ink-3);padding:3px 0;cursor:pointer}
+.foot-col a:hover{color:var(--amber)}
+.foot-base{max-width:1320px;margin:26px auto 0;padding:18px 22px 0;
+  border-top:1px solid var(--line-soft);font-size:11.5px;color:var(--ink-3);
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+.toast{position:fixed;bottom:24px;right:24px;background:var(--bg-3);
+  border:1px solid var(--green);border-left-width:3px;border-radius:6px;
+  padding:14px 18px;font-size:13.5px;z-index:200;box-shadow:var(--shadow);
+  transform:translateY(120px);transition:.35s;max-width:330px}
+.toast.show{transform:none}
+.toast b{font-family:'Saira Condensed';color:var(--green)}
+
+/* utility */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.split-12{display:grid;grid-template-columns:1.6fr 1fr;gap:22px}
+.mt28{margin-top:28px}.mt16{margin-top:16px}.mb14{margin-bottom:14px}
+.theory-card h4{font-size:16px;margin-bottom:7px}
+.theory-card .auth{font-family:'IBM Plex Mono';font-size:11px;color:var(--amber);margin-bottom:8px}
+.theory-card p{font-size:13px;color:var(--ink-2)}
+
+/* ---------- RESPONSIVE ---------- */
+@media(max-width:980px){
+  .hero-grid{grid-template-columns:1fr;gap:34px}
+  .auc-wrap{grid-template-columns:1fr}
+  .split,.split-12,.vp-row{grid-template-columns:1fr}
+  .grid-3,.grid-4{grid-template-columns:repeat(2,1fr)}
+  .stat-strip{grid-template-columns:repeat(2,1fr)}
+  .risk-grid{grid-template-columns:1fr}
+}
+@media(max-width:620px){
+  .nav-inner{gap:14px}
+  .grid-3,.grid-4,.grid-2{grid-template-columns:1fr}
+  .field-row,.mat-add{grid-template-columns:1fr}
+  .season-chart{gap:3px}
+  .sc-bar .mo{font-size:9px}
+  .bid{grid-template-columns:auto 1fr;grid-auto-rows:auto;gap:8px}
+  .bid-price,.bid-score{text-align:left}
+  .wiz-tab .wl{font-size:10px}
+  section{padding:40px 0}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header>
+  <div class="nav-inner">
+    <div class="brand" onclick="go('inicio')">
+      <svg class="gear" viewBox="0 0 48 48" fill="none">
+        <path d="M24 4l3.4 3.6 4.8-1.5 1.6 4.8 5 .7-.7 5 4 3-2.7 4.2 2.7 4.2-4 3 .7 5-5 .7-1.6 4.8-4.8-1.5L24 44l-3.4-3.6-4.8 1.5-1.6-4.8-5-.7.7-5-4-3 2.7-4.2L5.6 21l4-3-.7-5 5-.7 1.6-4.8 4.8 1.5L24 4z" fill="#ffb01f"/>
+        <circle cx="24" cy="24" r="8.5" fill="#13110d"/>
+        <circle cx="24" cy="24" r="3.2" fill="#ffb01f"/>
+      </svg>
+      <div class="brand-txt">
+        <b>FERRETERÍA DIGITAL</b>
+        <span>Subasta Inversa B2B</span>
+      </div>
+    </div>
+    <nav id="nav">
+      <button class="nav-btn active" data-v="inicio">Inicio</button>
+      <button class="nav-btn" data-v="subasta">Subasta en Vivo</button>
+      <button class="nav-btn" data-v="cliente">Portal Cliente</button>
+      <button class="nav-btn" data-v="proveedor">Portal Proveedor</button>
+      <button class="nav-btn" data-v="dashboard">Dashboard</button>
+      <button class="nav-btn" data-v="proveedores">Proveedores</button>
+      <button class="nav-btn" data-v="contingencias">Contingencias</button>
+      <button class="nav-btn" data-v="implementacion">Implementación</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- ============ INICIO ============ -->
+<section class="view on" id="v-inicio">
+  <div class="hero">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-tag"><span class="dot"></span> Sistema Integral de Cadena de Abastecimiento · v2.0</div>
+        <h1>EL PROVEEDOR<br><span class="fill">COMPITE</span> <span class="out">POR TI</span></h1>
+        <p class="hero-lead">Plataforma digital de <b style="color:var(--ink)">subasta inversa</b> para ferretería B2B. Invierte el poder de negociación: los proveedores pujan a la baja para ganar tu pedido. Cotizaciones en 24–72 horas y ahorros de 10–22% en costo de adquisición.</p>
+        <div class="hero-cta">
+          <button class="btn btn-primary" onclick="go('subasta')">▶ Ver subasta en vivo</button>
+          <button class="btn btn-ghost" onclick="go('cliente')">Crear solicitud</button>
+        </div>
+      </div>
+      <div class="hero-panel">
+        <div class="hp-head">
+          <h4>Subasta #SA-0427</h4>
+          <span class="hp-live">EN VIVO</span>
+        </div>
+        <div class="hp-row win">
+          <span class="nm"><span class="av">DC</span> Distribuidora Cóndor</span>
+          <span class="pr" style="color:var(--green)">S/ 18,420</span>
+        </div>
+        <div class="hp-row">
+          <span class="nm"><span class="av">FA</span> Ferremax Andina</span>
+          <span class="pr">S/ 19,150</span>
+        </div>
+        <div class="hp-row">
+          <span class="nm"><span class="av">CS</span> Comercial Sierra</span>
+          <span class="pr">S/ 19,880</span>
+        </div>
+        <div class="hp-bar"><i></i></div>
+        <p style="font-size:11px;color:var(--ink-3);margin-top:9px" class="mono">3 ofertas · cierra en 11:42 h · ahorro proyectado 16%</p>
+      </div>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat-cell"><div class="v">22%</div><div class="l">Ahorro máximo en adquisición</div></div>
+      <div class="stat-cell"><div class="v">24-72h</div><div class="l">Ventana de cotización</div></div>
+      <div class="stat-cell"><div class="v">$21-80</div><div class="l">Costo mensual operativo</div></div>
+      <div class="stat-cell"><div class="v">3</div><div class="l">Portales integrados</div></div>
+    </div>
+  </div>
+
+  <!-- propuesta de valor -->
+  <section style="padding-top:30px">
+    <div class="eyebrow">01 / Propuesta de valor</div>
+    <h2 class="sec-title">Del proceso manual a la plataforma proactiva</h2>
+    <p class="sec-sub">El sistema transforma cada fricción operativa de la ferretería tradicional en una ventaja competitiva medible.</p>
+    <div class="vp-card" id="vpCard"></div>
+  </section>
+
+  <!-- arquitectura -->
+  <section>
+    <div class="eyebrow">02 / Arquitectura</div>
+    <h2 class="sec-title">Cinco módulos interconectados</h2>
+    <p class="sec-sub">Construido sobre automatización sin código (n8n) y Google Workspace, con un costo total estimado de $21–80 al mes.</p>
+    <div class="grid-3" id="modGrid"></div>
+  </section>
+
+  <!-- flujo -->
+  <section>
+    <div class="eyebrow">03 / Proceso</div>
+    <h2 class="sec-title">Flujo de la subasta inversa</h2>
+    <div class="split-12 mt16">
+      <div class="card">
+        <div class="flow" id="flowList"></div>
+      </div>
+      <div class="card" style="background:var(--bg-2)">
+        <h4 style="font-size:18px;margin-bottom:6px">Marco teórico</h4>
+        <p style="font-size:13px;color:var(--ink-2);margin-bottom:18px">Tres pilares de la cadena de suministro fundamentan el diseño.</p>
+        <div class="theory-card mb14">
+          <h4>Eficiencia vs. Respuesta</h4>
+          <div class="auth mono">Chopra &amp; Meindl, 2019</div>
+          <p>Frontera eficiente dual: subasta para proyectos grandes, stock de emergencia para urgencias.</p>
+        </div>
+        <div class="theory-card mb14">
+          <h4>Cadena ágil y lean</h4>
+          <div class="auth mono">M. Christopher, 2016</div>
+          <p>Punto de desacoplamiento por categoría: lean para básicos, agile por proyecto.</p>
+        </div>
+        <div class="theory-card">
+          <h4>Gestión de inventario</h4>
+          <div class="auth mono">R. Ballou, 2004</div>
+          <p>Optimiza costo de pedido, de desabasto y de inventario improductivo.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</section>
+
+<div class="hazard"></div>
+
+<!-- ============ SUBASTA EN VIVO ============ -->
+<section class="view" id="v-subasta">
+  <section>
+    <div class="eyebrow">Motor de Subasta · M2</div>
+    <h2 class="sec-title">Subasta inversa en vivo</h2>
+    <p class="sec-sub">Los proveedores habilitados compiten bajando su oferta. El ranking se recalcula en tiempo real con un score ponderado. Inicia la simulación para ver el proceso.</p>
+
+    <div class="auc-wrap">
+      <div class="auc-board">
+        <div class="auc-head">
+          <div>
+            <h4>Cemento, fierro y agregados — Proyecto Vivienda</h4>
+            <div class="folio">RFQ #SA-0512 · Categoría: Materiales de construcción · Cliente: Constructora Huascarán</div>
+          </div>
+          <div class="timer-box">
+            <div class="timer" id="aucTimer">00:40</div>
+            <div class="tl">Tiempo restante</div>
+          </div>
+        </div>
+        <div class="auc-items">
+          <span>Cemento Portland Tipo I · <b>500 bolsas</b></span>
+          <span>Fierro corrugado 1/2" · <b>2.0 ton</b></span>
+          <span>Arena gruesa · <b>14 m³</b></span>
+          <span>Entrega · <b>≤ 9 días</b></span>
+        </div>
+        <div class="auc-rank" id="aucRank"></div>
+        <div style="padding:14px 22px;display:flex;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line)">
+          <button class="btn btn-primary btn-sm" id="aucStart" onclick="auctionStart()">▶ Iniciar subasta</button>
+          <button class="btn btn-ghost btn-sm" id="aucClose" onclick="auctionClose()" disabled>Cerrar y adjudicar</button>
+          <button class="btn btn-ghost btn-sm" onclick="auctionReset()">↻ Reiniciar</button>
+        </div>
+      </div>
+
+      <div class="auc-side">
+        <div class="card weight-card">
+          <h4 style="font-size:15px;margin-bottom:8px">Ponderación del score</h4>
+          <div class="wt"><span>Precio competitivo</span><span class="pct">60%</span></div>
+          <div class="wt"><span>Plazo de entrega</span><span class="pct">25%</span></div>
+          <div class="wt"><span>Calificación histórica</span><span class="pct">15%</span></div>
+        </div>
+        <div class="card">
+          <h4 style="font-size:15px;margin-bottom:10px">Registro del proceso</h4>
+          <div class="log" id="aucLog">
+            <div class="log-line"><span class="t">--:--</span> Subasta lista. 4 proveedores habilitados.</div>
+          </div>
+        </div>
+        <div class="award-panel" id="awardPanel">
+          <h4>✓ Subasta adjudicada</h4>
+          <p id="awardTxt"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</section>
+
+<div class="hazard"></div>
+
+<!-- ============ PORTAL CLIENTE ============ -->
+<section class="view" id="v-cliente">
+  <section>
+    <div class="eyebrow">Portal del Cliente · M1</div>
+    <h2 class="sec-title">Crear solicitud de cotización</h2>
+    <p class="sec-sub">Tres pasos para lanzar tu proyecto a subasta inversa. Los proveedores recibirán la RFQ y competirán por tu pedido.</p>
+
+    <div class="card" style="max-width:780px">
+      <div class="wiz-steps">
+        <div class="wiz-tab active" id="wt1"><span class="wn">1</span><span class="wl">Proyecto</span></div>
+        <div class="wiz-tab" id="wt2"><span class="wn">2</span><span class="wl">Materiales</span></div>
+        <div class="wiz-tab" id="wt3"><span class="wn">3</span><span class="wl">Confirmar</span></div>
+      </div>
+
+      <!-- step 1 -->
+      <div class="wiz-pane on" id="wp1">
+        <div class="field">
+          <label>Nombre del proyecto</label>
+          <input type="text" id="prjName" placeholder="Ej. Ampliación Almacén Municipal">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Categoría del proyecto</label>
+            <select id="prjCat">
+              <option>Materiales de construcción</option>
+              <option>Pintura y acabados</option>
+              <option>Electricidad e iluminación</option>
+              <option>Ferretería general</option>
+              <option>Herramientas y equipos</option>
+              <option>Impermeabilizantes</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Fecha de entrega requerida</label>
+            <input type="date" id="prjDate">
+          </div>
+        </div>
+        <div class="field">
+          <label>Observaciones técnicas (opcional)</label>
+          <textarea id="prjNotes" rows="2" placeholder="Especificaciones, normas técnicas, condiciones de obra..."></textarea>
+        </div>
+        <div class="wiz-nav">
+          <span></span>
+          <button class="btn btn-primary btn-sm" onclick="wizNext(1)">Siguiente →</button>
+        </div>
+      </div>
+
+      <!-- step 2 -->
+      <div class="wiz-pane" id="wp2">
+        <p style="font-size:13px;color:var(--ink-2);margin-bottom:14px">Agrega los materiales que necesitas cotizar. Mínimo un ítem.</p>
+        <div class="mat-add">
+          <div class="field" style="margin:0">
+            <label>Material</label>
+            <input type="text" id="matName" placeholder="Ej. Cemento Portland Tipo I">
+          </div>
+          <div class="field" style="margin:0">
+            <label>Cantidad</label>
+            <input type="number" id="matQty" placeholder="500" min="1">
+          </div>
+          <div class="field" style="margin:0">
+            <label>Unidad</label>
+            <select id="matUnit">
+              <option>unidad</option><option>bolsa</option><option>m³</option>
+              <option>ton</option><option>m</option><option>caja</option><option>galón</option>
+            </select>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="addMat()">+ Agregar</button>
+        </div>
+        <div class="mat-list" id="matList"></div>
+        <div class="wiz-nav">
+          <button class="btn btn-ghost btn-sm" onclick="wizGo(1)">← Atrás</button>
+          <button class="btn btn-primary btn-sm" onclick="wizNext(2)">Siguiente →</button>
+        </div>
+      </div>
+
+      <!-- step 3 -->
+      <div class="wiz-pane" id="wp3">
+        <p style="font-size:13px;color:var(--ink-2);margin-bottom:14px">Revisa tu solicitud antes de lanzarla a subasta inversa.</p>
+        <div class="review-box" id="reviewBox"></div>
+        <div class="wiz-nav">
+          <button class="btn btn-ghost btn-sm" onclick="wizGo(2)">← Atrás</button>
+          <button class="btn btn-primary btn-sm" onclick="submitRFQ()">Lanzar a subasta ▶</button>
+        </div>
+      </div>
+
+      <!-- success -->
+      <div class="success-card" id="rfqSuccess">
+        <div class="chk">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#0d1a10" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Solicitud enviada a subasta</h3>
+        <p style="font-size:13px;color:var(--ink-2)">Tu RFQ está activa. Los proveedores habilitados ya fueron notificados por correo y WhatsApp.</p>
+        <div class="folio-big" id="rfqFolio">#SA-0000</div>
+        <p style="font-size:12px;color:var(--ink-3)">Recibirás las ofertas en una ventana de 24 a 72 horas.</p>
+        <button class="btn btn-ghost btn-sm" style="margin-top:16px" onclick="resetWizard()">Crear otra solicitud</button>
+      </div>
+    </div>
+  </section>
+</section>
+
+<div class="hazard"></div>
+
+<!-- ============ PORTAL PROVEEDOR ============ -->
+<section class="view" id="v-proveedor">
+  <section>
+    <div class="eyebrow">Portal del Proveedor · M3</div>
+    <h2 class="sec-title">Solicitudes de cotización abiertas</h2>
+    <p class="sec-sub">RFQ disponibles en tus categorías habilitadas. Envía tu mejor oferta dentro de la ventana de subasta.</p>
+    <div class="grid-2" id="rfqGrid"></div>
+  </section>
+</section>
+
+<div class="hazard"></div>
+
+<!-- ============ DASHBOARD ============ -->
+<section class="view" id="v-dashboard">
+  <section>
+    <div class="eyebrow">Análisis y Proyecciones · M4</div>
+    <h2 class="sec-title">Dashboard del administrador</h2>
+    <p class="sec-sub">Indicadores clave, proyecciones de estacionalidad y alertas automáticas del sistema.</p>
+
+    <div class="grid-4" id="kpiGrid"></div>
+
+    <div class="split-12 mt28">
+      <div class="chart-card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <div>
+            <h4 style="font-size:18px">Índice de estacionalidad mensual</h4>
+            <p style="font-size:12.5px;color:var(--ink-2)">Ratio demanda mensual / demanda promedio anual · Modelo propuesto</p>
+          </div>
+        </div>
+        <div class="season-chart" id="seasonChart">
+          <div class="baseline" style="bottom:64%"><span>1.0</span></div>
+        </div>
+        <div class="legend">
+          <span><i style="background:var(--green)"></i> Verde — temporada baja</span>
+          <span><i style="background:var(--yellow)"></i> Amarillo — preparación</span>
+          <span><i style="background:var(--red)"></i> Rojo — pico de demanda</span>
+        </div>
+      </div>
+      <div class="card">
+        <h4 style="font-size:18px;margin-bottom:14px">Alertas activas</h4>
+        <div class="alert-list" id="alertList"></div>
+      </div>
+    </div>
+
+    <div class="mt28">
+      <h4 style="font-size:18px;margin-bottom:6px">Mapa de estacionalidad por categoría</h4>
+      <p style="font-size:12.5px;color:var(--ink-2);margin-bottom:14px">Acción del sistema según temporada de cada familia de producto.</p>
+      <div class="tbl-wrap scroll">
+        <table class="tbl">
+          <thead><tr><th>Categoría</th><th>Temporada alta</th><th>Temporada baja</th><th>Acción del sistema</th></tr></thead>
+          <tbody id="seasonTbl"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</section>
+
+<div class="hazard"></div>
+
+<!-- ============ PROVEEDORES ============ -->
+<section class="view" id="v-proveedores">
+  <section>
+    <div class="eyebrow">Gestión y Evaluación · M7</div>
+    <h2 class="sec-title">Cartera de proveedores</h2>
+    <p class="sec-sub">Score compuesto actualizado tras cada transacción. Score &lt; 6.0 suspende preventivamente; &lt; 5.0 inhabilita del sistema.</p>
+    <div class="grid-3" id="supGrid"></div>
+
+    <div class="mt28">
+      <h4 style="font-size:18px;margin-bottom:6px">Criterios del score de proveedor</h4>
+      <p style="font-size:12.5px;color:var(--ink-2);margin-bottom:14px">Composición ponderada del puntaje de cada proveedor.</p>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>Criterio de evaluación</th><th>Peso</th><th>Forma de medición</th></tr></thead>
+          <tbody id="scoreTbl"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</section>
+
+<div class="hazard"></div>
+
+<!-- ============ CONTINGENCIAS ============ -->
+<section class="view" id="v-contingencias">
+  <section>
+    <div class="eyebrow">Gestión del Riesgo</div>
+    <h2 class="sec-title">Plan de contingencias</h2>
+    <p class="sec-sub">Identificación de riesgos de la cadena de abastecimiento y protocolos de respuesta automatizados, según la metodología de Chopra &amp; Sodhi (2004).</p>
+
+    <h4 style="font-size:18px;margin-bottom:12px">Matriz de riesgos</h4>
+    <div class="risk-grid" id="riskGrid"></div>
+
+    <h4 style="font-size:18px;margin:30px 0 12px">Protocolos de contingencia por escenario</h4>
+    <div id="protoList"></div>
+  </section>
+</section>
+
+<div class="hazard"></div>
+
+<!-- ============ IMPLEMENTACIÓN ============ -->
+<section class="view" id="v-implementacion">
+  <section>
+    <div class="eyebrow">Hoja de ruta</div>
+    <h2 class="sec-title">Plan de implementación</h2>
+    <p class="sec-sub">Seis fases progresivas, de bajo riesgo, con un horizonte total de 14 semanas y una inversión estimada de $700–1,500 el primer año.</p>
+
+    <div class="split">
+      <div>
+        <h4 style="font-size:17px;margin-bottom:16px">Fases de despliegue</h4>
+        <div class="tl" id="phaseTL"></div>
+      </div>
+      <div>
+        <h4 style="font-size:17px;margin-bottom:16px">Presupuesto del primer año</h4>
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th>Concepto</th><th style="text-align:right">Costo estimado</th></tr></thead>
+            <tbody id="budgetTbl"></tbody>
+          </table>
+        </div>
+        <div class="budget-total">
+          <span class="bl">Total primer año</span>
+          <span class="bv">$700–1,500</span>
+        </div>
+
+        <h4 style="font-size:17px;margin:26px 0 12px">Métricas de éxito · 6 meses</h4>
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th>Indicador</th><th>Línea base</th><th>Objetivo</th></tr></thead>
+            <tbody id="metricTbl"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+</section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="foot-in">
+    <div class="fb">
+      <div class="brand" style="cursor:default">
+        <svg class="gear" viewBox="0 0 48 48" fill="none">
+          <path d="M24 4l3.4 3.6 4.8-1.5 1.6 4.8 5 .7-.7 5 4 3-2.7 4.2 2.7 4.2-4 3 .7 5-5 .7-1.6 4.8-4.8-1.5L24 44l-3.4-3.6-4.8 1.5-1.6-4.8-5-.7.7-5-4-3 2.7-4.2L5.6 21l4-3-.7-5 5-.7 1.6-4.8 4.8 1.5L24 4z" fill="#ffb01f"/>
+          <circle cx="24" cy="24" r="8.5" fill="#1a1813"/><circle cx="24" cy="24" r="3.2" fill="#ffb01f"/>
+        </svg>
+        <div class="brand-txt"><b>FERRETERÍA DIGITAL</b><span>Subasta Inversa B2B</span></div>
+      </div>
+      <p>Sistema integral de cadena de abastecimiento con plataforma de subasta inversa. Diseñado para ferretería mediana con proyectos B2B.</p>
+    </div>
+    <div class="foot-cols">
+      <div class="foot-col">
+        <h5>Plataforma</h5>
+        <a onclick="go('subasta')">Subasta en vivo</a>
+        <a onclick="go('cliente')">Portal Cliente</a>
+        <a onclick="go('proveedor')">Portal Proveedor</a>
+        <a onclick="go('dashboard')">Dashboard</a>
+      </div>
+      <div class="foot-col">
+        <h5>Operación</h5>
+        <a onclick="go('proveedores')">Proveedores</a>
+        <a onclick="go('contingencias')">Contingencias</a>
+        <a onclick="go('implementacion')">Implementación</a>
+        <a onclick="go('inicio')">Arquitectura</a>
+      </div>
+      <div class="foot-col">
+        <h5>Marco teórico</h5>
+        <a style="cursor:default">Chopra &amp; Meindl, 2019</a>
+        <a style="cursor:default">M. Christopher, 2016</a>
+        <a style="cursor:default">R. Ballou, 2004</a>
+        <a style="cursor:default">Nielsen, 1994</a>
+      </div>
+    </div>
+  </div>
+  <div class="foot-base">
+    <span>Sistema Integral de Ferretería con Subasta Inversa — Versión 2.0 · 2025</span>
+    <span>Uso interno — Documento técnico de implementación</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast"><b id="toastB">Listo</b><div id="toastT"></div></div>
+
+<script>
+/* ======================= DATA ======================= */
+const DATA = {
+  valueProp:[
+    {p:"Cotizar con múltiples proveedores demora días o semanas",s:"La subasta inversa consolida ofertas en 24–72 horas"},
+    {p:"Precios de lista sin poder de negociación real",s:"Competencia directa entre proveedores baja precios 12–22%"},
+    {p:"Sin visibilidad de la estacionalidad de la demanda",s:"Módulo de proyecciones con análisis de datos históricos"},
+    {p:"Dependencia de un solo proveedor — riesgo de rotura de stock",s:"Cartera diversificada con proveedores validados y de respaldo"},
+    {p:"Procesos manuales y en papel",s:"Automatización completa con n8n y Google Workspace"}
+  ],
+  modules:[
+    {id:"M1",t:"Portal del Cliente",d:"Solicitud de proyectos, carga de materiales y planos en tres pasos.",tech:["Web App PWA","Google Forms"]},
+    {id:"M2",t:"Motor de Subasta",d:"Orquestación del proceso de puja inversa y ranking ponderado automático.",tech:["n8n","Google Sheets"]},
+    {id:"M3",t:"Portal de Proveedores",d:"Recepción de RFQ, envío de ofertas e historial de desempeño.",tech:["Web App","Google Forms"]},
+    {id:"M4",t:"Análisis y Proyecciones",d:"Dashboard de precios, estacionalidad y alertas tempranas de demanda.",tech:["Looker Studio"]},
+    {id:"M5",t:"Gestión de Contratos",d:"Generación, firma electrónica y seguimiento de pedidos adjudicados.",tech:["PandaDoc","Google Drive"]}
+  ],
+  flow:[
+    {t:"Solicitud de cotización",d:"El cliente crea una RFQ con materiales, cantidades y fecha de entrega."},
+    {t:"Validación y clasificación",d:"n8n valida la solicitud y activa el flujo de subasta por categoría."},
+    {t:"Notificación a proveedores",d:"Correo y WhatsApp a todos los proveedores habilitados con link único."},
+    {t:"Ventana de pujas",d:"24–72 h para enviar precio, plazo de entrega y condiciones de pago."},
+    {t:"Ranking ponderado",d:"n8n consolida ofertas y genera ranking: precio 60%, plazo 25%, score 15%."},
+    {t:"Adjudicación",d:"El encargado aprueba con un clic; el proveedor ganador firma el contrato digital."}
+  ],
+  suppliers:[
+    {nm:"Distribuidora Cóndor",ab:"DC",cat:"Materiales de construcción",score:8.9,price:18420,days:7,rating:8.9,onTime:97,won:34,quality:9.1},
+    {nm:"Ferremax Andina",ab:"FA",cat:"Ferretería general",score:8.2,price:19150,days:6,rating:8.2,onTime:94,won:28,quality:8.4},
+    {nm:"Comercial Sierra",ab:"CS",cat:"Materiales de construcción",score:7.6,price:19880,days:9,rating:7.6,onTime:91,won:19,quality:7.9},
+    {nm:"Aceros del Norte",ab:"AN",cat:"Estructural / Importador",score:8.5,price:18950,days:11,rating:8.5,onTime:96,won:22,quality:8.8},
+    {nm:"PinturArte Perú",ab:"PA",cat:"Pintura y acabados",score:7.9,price:0,days:5,rating:7.9,onTime:93,won:25,quality:8.0},
+    {nm:"ElectroSur EIRL",ab:"ES",cat:"Electricidad e iluminación",score:6.4,price:0,days:8,rating:6.4,onTime:84,won:12,quality:6.8}
+  ],
+  scoreCriteria:[
+    {c:"Precio competitivo (ratio vs. promedio de subasta)",w:"30%",m:"Automático por el sistema"},
+    {c:"Cumplimiento de plazo de entrega acordado",w:"25%",m:"Fecha real vs. comprometida"},
+    {c:"Calidad del producto (devoluciones y reclamos)",w:"20%",m:"Registro manual del encargado de bodega"},
+    {c:"Disponibilidad de stock al momento de ofertar",w:"15%",m:"Verificación al cierre de la subasta"},
+    {c:"Tiempo de respuesta a la RFQ",w:"10%",m:"Automático por timestamp del sistema"}
+  ],
+  season:[
+    {m:"Ene",i:0.72,lvl:"g"},{m:"Feb",i:0.78,lvl:"g"},{m:"Mar",i:1.18,lvl:"y"},
+    {m:"Abr",i:1.35,lvl:"r"},{m:"May",i:1.40,lvl:"r"},{m:"Jun",i:1.28,lvl:"r"},
+    {m:"Jul",i:0.90,lvl:"g"},{m:"Ago",i:0.88,lvl:"g"},{m:"Sep",i:1.05,lvl:"y"},
+    {m:"Oct",i:1.15,lvl:"y"},{m:"Nov",i:1.10,lvl:"y"},{m:"Dic",i:0.80,lvl:"g"}
+  ],
+  seasonCat:[
+    {c:"Materiales de construcción",a:"Mar–Jun, Sep–Nov",b:"Jul–Ago, Dic–Feb",ac:"Alerta 6 sem antes; subasta anticipada"},
+    {c:"Pintura y acabados",a:"Abr–Jun",b:"Jul–Sep",ac:"Precompra trimestral a proveedores fijos"},
+    {c:"Electricidad e iluminación",a:"Nov–Dic",b:"Feb–Mar",ac:"Subasta agresiva en temporada baja"},
+    {c:"Ferretería general",a:"Todo el año (alza Mar–Jun)",b:"Ene–Feb",ac:"Reorden continuo por algoritmo"},
+    {c:"Herramientas manuales y eléctricas",a:"Mar–Jul",b:"Ago–Oct",ac:"Consignación o alquiler en temporada alta"},
+    {c:"Impermeabilizantes",a:"Ago–Oct",b:"Mar–Jun",ac:"Subasta preventiva en agosto"}
+  ],
+  kpis:[
+    {v:"16",u:"%",l:"Ahorro promedio en adquisición",t:"+4 pts vs. trimestre",dir:"up",ic:"%"},
+    {v:"54",u:"h",l:"Tiempo medio de cotización",t:"-82% vs. proceso manual",dir:"up",ic:"⏱"},
+    {v:"7",u:"",l:"Subastas activas este mes",t:"3 en cierre próximo",dir:"up",ic:"▣"},
+    {v:"4.2",u:"/cat",l:"Proveedores habilitados promedio",t:"Sobre el mínimo de 3",dir:"up",ic:"◈"},
+    {v:"94",u:"%",l:"Entregas a tiempo del proveedor",t:"Objetivo > 95%",dir:"dn",ic:"✓"},
+    {v:"S/68k",u:"",l:"Ahorro acumulado del año",t:"+S/12k este mes",dir:"up",ic:"$"},
+    {v:"8.1",u:"/10",l:"Score promedio de la cartera",t:"Objetivo > 7.5",dir:"up",ic:"★"},
+    {v:"2.1",u:"%",l:"Tasa de Alerta Roja activada",t:"Objetivo < 5%",dir:"up",ic:"!"}
+  ],
+  alerts:[
+    {lvl:"r",ai:"R",t:"Alerta Roja — Pico de demanda activo",d:"Mayo: índice 1.40. Monitoreo diario de stock en materiales de construcción."},
+    {lvl:"y",ai:"A",t:"Alerta Amarilla — Reabastecimiento",d:"Cemento Portland al 28% de stock de seguridad. Subasta lanzada automáticamente."},
+    {lvl:"y",ai:"A",t:"Alerta Amarilla — Preparación estacional",d:"Subasta preventiva de impermeabilizantes recomendada para agosto."},
+    {lvl:"g",ai:"V",t:"Alerta Verde — Oportunidad de compra",d:"Pintura en temporada baja. Ventana óptima para subasta anticipada a precio bajo."}
+  ],
+  risks:[
+    {r:"Proveedor único no entrega en fecha",p:"Alta · 35%",i:"Alto",n:"critico"},
+    {r:"Rotura de stock en temporada alta",p:"Alta · 30%",i:"Alto",n:"critico"},
+    {r:"Subasta sin ofertas suficientes (< 2)",p:"Media · 20%",i:"Alto",n:"alto"},
+    {r:"Falla del sistema n8n o Google Workspace",p:"Baja · 8%",i:"Alto",n:"alto"},
+    {r:"Aumento brusco de precios por tipo de cambio",p:"Media · 25%",i:"Medio",n:"alto"},
+    {r:"Calidad inferior a la especificada",p:"Media · 22%",i:"Alto",n:"alto"},
+    {r:"Proyecto del cliente cancelado post-adjudicación",p:"Media · 18%",i:"Medio",n:"medio"},
+    {r:"Fraude o proveedor no habilitado",p:"Baja · 5%",i:"Alto",n:"medio"}
+  ],
+  protocols:[
+    {tag:"C1",t:"Proveedor no entrega o entrega parcial",ph:[
+      {p:"Activación",d:"El sistema detecta 48 h del plazo acordado sin confirmación de entrega."},
+      {p:"Acción 0–4 h",d:"n8n alerta al proveedor y al encargado. Se activa el proveedor de respaldo prehabilitado."},
+      {p:"Acción 4–24 h",d:"El encargado contacta al cliente con nuevo cronograma. Penalidad de 2% por día de retraso."},
+      {p:"Resolución",d:"El respaldo ejecuta el pedido. El proveedor original queda suspendido 90 días."}
+    ]},
+    {tag:"C2",t:"Subasta sin ofertas suficientes",ph:[
+      {p:"Activación",d:"Cierre de la ventana con menos de 2 ofertas válidas recibidas."},
+      {p:"Acción inmediata",d:"n8n extiende la ventana 24 h y amplía la notificación a proveedores de segunda línea."},
+      {p:"Acción secundaria",d:"Si persiste, el encargado recibe lista de proveedores nacionales alternativos."},
+      {p:"Resolución",d:"Contratación directa con el mejor disponible; se registra la excepción."}
+    ]},
+    {tag:"C3",t:"Falla tecnológica del sistema",ph:[
+      {p:"Prevención",d:"Todas las solicitudes y ofertas se replican en Google Sheets, accesible sin n8n."},
+      {p:"Activación",d:"Falla de n8n por más de 2 horas en horario hábil."},
+      {p:"Acción inmediata",d:"Gestión manual con plantillas prediseñadas en Forms y Sheets (Procedimiento PR-01)."},
+      {p:"Resolución",d:"Restauración de n8n desde la última copia de seguridad diaria en Google Drive."}
+    ]},
+    {tag:"C4",t:"Rotura de stock en temporada alta",ph:[
+      {p:"Prevención",d:"Stock de seguridad para cubrir 14 días de demanda promedio en categorías críticas."},
+      {p:"Activación",d:"Inventario al 20% del stock de seguridad sin pedido confirmado."},
+      {p:"Acción inmediata",d:"Mini-subasta de emergencia con ventana de 12 h y precio techo +15%."},
+      {p:"Acción secundaria",d:"El sistema sugiere sustitutos disponibles en inventario y los comunica al cliente."}
+    ]}
+  ],
+  phases:[
+    {n:"0",t:"Diagnóstico",meta:"2 semanas · $0",d:"Mapeo de proveedores actuales, análisis de datos históricos y definición de categorías prioritarias."},
+    {n:"1",t:"Infraestructura",meta:"1 semana · $50–100",d:"Contratación de VPS, instalación de n8n, configuración de Google Workspace y dominio."},
+    {n:"2",t:"Formularios y flujos",meta:"3 semanas · $0–200",d:"Diseño de formularios RFQ y oferta, flujos n8n y pruebas con 5 proveedores piloto."},
+    {n:"3",t:"Portal Web / App",meta:"2 semanas · $0–150",d:"Configuración de Glide/Softr, carga de catálogo y dashboards en Looker Studio."},
+    {n:"4",t:"Piloto",meta:"4 semanas · $0",d:"Primera subasta real con 3 proyectos de bajo riesgo y ajuste de flujos."},
+    {n:"5",t:"Escala",meta:"2 semanas · $0",d:"Incorporación de todos los proyectos, capacitación y activación de alertas estacionales."}
+  ],
+  budget:[
+    {c:"Infraestructura (VPS, dominio, SSL)",v:"$60 + $10/mes"},
+    {c:"Google Workspace Business (3 usuarios)",v:"$18/mes"},
+    {c:"n8n self-hosted",v:"Incluido en VPS"},
+    {c:"Portal web (Glide / Softr)",v:"$0–25/mes"},
+    {c:"Twilio WhatsApp API",v:"$10–20/mes"},
+    {c:"PandaDoc (contratos digitales)",v:"$0–19/mes"},
+    {c:"Consultoría de configuración (opcional)",v:"$200–500 único"}
+  ],
+  metrics:[
+    {i:"Tiempo promedio de cotización",b:"3–7 días",o:"< 72 horas"},
+    {i:"Reducción de costo de adquisición",b:"0% (ref.)",o:"10–18%"},
+    {i:"Proveedores habilitados por categoría",b:"1–2",o:"≥ 3"},
+    {i:"Quiebres de stock en temporada alta",b:"Variable",o:"< 5%"},
+    {i:"Proyectos grandes cotizados por mes",b:"Actual",o:"+40%"},
+    {i:"Satisfacción del cliente (NPS)",b:"No medido",o:"> 7.5 / 10"}
+  ]
+};
+
+/* ======================= NAV ======================= */
+function go(v){
+  document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
+  document.getElementById('v-'+v).classList.add('on');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.v===v));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>go(b.dataset.v));
+
+/* ======================= TOAST ======================= */
+let toastT;
+function toast(title,msg){
+  document.getElementById('toastB').textContent=title;
+  document.getElementById('toastT').textContent=msg;
+  const t=document.getElementById('toast');
+  t.classList.add('show');
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.remove('show'),3800);
+}
+
+/* ======================= RENDER: INICIO ======================= */
+function el(tag,cls,html){const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;}
+
+DATA.valueProp.forEach(v=>{
+  const row=el('div','vp-row');
+  row.innerHTML=`<div class="vp-prob"><b>Problema actual</b>${v.p}</div>
+    <div class="vp-sol"><b>Solución del sistema</b>${v.s}</div>`;
+  document.getElementById('vpCard').appendChild(row);
+});
+
+DATA.modules.forEach(m=>{
+  const c=el('div','card hov mod-card');
+  c.innerHTML=`<div class="num-bg">${m.id.replace('M','')}</div>
+    <div class="mod-id">MÓDULO ${m.id}</div>
+    <h4>${m.t}</h4><p>${m.d}</p>
+    <div class="mod-tech">${m.tech.map(t=>`<span class="chip">${t}</span>`).join('')}</div>`;
+  document.getElementById('modGrid').appendChild(c);
+});
+
+DATA.flow.forEach((f,i)=>{
+  const s=el('div','flow-step');
+  s.innerHTML=`<div class="flow-n">${i+1}</div>
+    <div class="ft"><b>${f.t}</b><p>${f.d}</p></div>`;
+  document.getElementById('flowList').appendChild(s);
+});
+
+/* ======================= AUCTION ENGINE ======================= */
+const aucData=()=>([
+  {ab:"DC",nm:"Distribuidora Cóndor",price:21800,floor:17600,days:7,rating:8.9},
+  {ab:"FA",nm:"Ferremax Andina",price:22400,floor:18100,days:6,rating:8.2},
+  {ab:"CS",nm:"Comercial Sierra",price:21300,floor:18900,days:9,rating:7.6},
+  {ab:"AN",nm:"Aceros del Norte",price:22900,floor:18400,days:11,rating:8.5}
+]);
+let auc={sup:aucData(),time:40,timer:null,running:false,closed:false};
+
+function fmt(n){return 'S/ '+n.toLocaleString('es-PE');}
+function scoreOf(s,all){
+  const minP=Math.min(...all.map(x=>x.price));
+  const minD=Math.min(...all.map(x=>x.days));
+  const ps=(minP/s.price)*100, ds=(minD/s.days)*100, rs=s.rating*10;
+  return Math.round((ps*.6+ds*.25+rs*.15)*10)/10;
+}
+function renderAuc(){
+  const all=auc.sup;
+  const ranked=[...all].map(s=>({...s,sc:scoreOf(s,all)})).sort((a,b)=>b.sc-a.sc);
+  const wrap=document.getElementById('aucRank');
+  wrap.innerHTML='';
+  ranked.forEach((s,i)=>{
+    const orig=aucData().find(o=>o.ab===s.ab);
+    const diff=orig.price-s.price;
+    const d=el('div','bid'+(i===0?' lead':''));
+    d.innerHTML=`
+      <div class="bid-rank">${i+1}</div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="bid-av">${s.ab}</div>
+        <div class="bid-info"><b>${s.nm}</b>
+          <span class="meta">${s.days} días entrega · score hist. ${s.rating}</span></div>
+      </div>
+      <div class="bid-price">
+        <div class="p">${fmt(s.price)}</div>
+        <div class="d ${diff>0?'down':''}">${diff>0?'▼ -'+fmt(diff).replace('S/ ',''):'oferta base'}</div>
+      </div>
+      <div class="bid-score"><div class="sc">${s.sc}</div><div class="sl">Score</div></div>`;
+    wrap.appendChild(d);
+  });
+}
+function logLine(txt,cls){
+  const log=document.getElementById('aucLog');
+  const t=new Date();
+  const ts=String(t.getMinutes()).padStart(2,'0')+':'+String(t.getSeconds()).padStart(2,'0');
+  const l=el('div','log-line'+(cls?' '+cls:''),`<span class="t">${ts}</span> ${txt}`);
+  log.insertBefore(l,log.firstChild);
+}
+function setTimer(){
+  const t=document.getElementById('aucTimer');
+  const m=Math.floor(auc.time/60),s=auc.time%60;
+  t.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  t.classList.toggle('crit',auc.time<=10);
+}
+function auctionStart(){
+  if(auc.running||auc.closed)return;
+  auc.running=true;
+  document.getElementById('aucStart').disabled=true;
+  document.getElementById('aucClose').disabled=false;
+  logLine('Subasta iniciada. Ventana abierta.');
+  toast('Subasta iniciada','Los proveedores comenzaron a pujar.');
+  auc.timer=setInterval(()=>{
+    auc.time--;
+    setTimer();
+    // 1-2 suppliers lower their bid
+    const n=Math.random()<.5?1:2;
+    for(let k=0;k<n;k++){
+      const s=auc.sup[Math.floor(Math.random()*auc.sup.length)];
+      if(s.price>s.floor){
+        const cut=Math.round((80+Math.random()*420)/10)*10;
+        s.price=Math.max(s.floor,s.price-cut);
+        logLine(`${s.nm} bajó su oferta a <b style="color:#fff">${fmt(s.price)}</b>.`);
+      }
+    }
+    renderAuc();
+    if(auc.time<=0)auctionClose();
+  },1000);
+}
+function auctionClose(){
+  if(auc.closed)return;
+  clearInterval(auc.timer);
+  auc.running=false;auc.closed=true;
+  auc.time=Math.max(0,auc.time);setTimer();
+  document.getElementById('aucClose').disabled=true;
+  document.getElementById('aucStart').disabled=true;
+  const all=auc.sup;
+  const win=[...all].map(s=>({...s,sc:scoreOf(s,all)})).sort((a,b)=>b.sc-a.sc)[0];
+  const orig=aucData().find(o=>o.ab===win.ab);
+  const saved=Math.round((1-win.price/Math.max(...aucData().map(x=>x.price)))*100);
+  logLine(`Adjudicado a <b style="color:#fff">${win.nm}</b> — ${fmt(win.price)}.`,'win');
+  const ap=document.getElementById('awardPanel');
+  ap.classList.add('show');
+  document.getElementById('awardTxt').innerHTML=
+    `Proveedor ganador: <b style="color:var(--green)">${win.nm}</b> con oferta de
+     <b style="color:#fff">${fmt(win.price)}</b>, score ${win.sc} y entrega en ${win.days} días.
+     Ahorro estimado del <b style="color:var(--green)">${saved}%</b> frente al precio más alto.
+     El contrato digital fue enviado para firma electrónica.`;
+  toast('Subasta adjudicada','Contrato generado para '+win.nm+'.');
+}
+function auctionReset(){
+  clearInterval(auc.timer);
+  auc={sup:aucData(),time:40,timer:null,running:false,closed:false};
+  document.getElementById('aucStart').disabled=false;
+  document.getElementById('aucClose').disabled=true;
+  document.getElementById('awardPanel').classList.remove('show');
+  document.getElementById('aucLog').innerHTML=
+    '<div class="log-line"><span class="t">--:--</span> Subasta lista. 4 proveedores habilitados.</div>';
+  setTimer();renderAuc();
+}
+setTimer();renderAuc();
+
+/* ======================= WIZARD: PORTAL CLIENTE ======================= */
+let wizStep=1, materials=[];
+function wizGo(n){
+  wizStep=n;
+  for(let i=1;i<=3;i++){
+    document.getElementById('wp'+i).classList.toggle('on',i===n);
+    const tab=document.getElementById('wt'+i);
+    tab.classList.toggle('active',i===n);
+    tab.classList.toggle('done',i<n);
+  }
+}
+function wizNext(from){
+  if(from===1){
+    if(!document.getElementById('prjName').value.trim()){
+      toast('Falta información','Ingresa el nombre del proyecto.');return;
+    }
+    wizGo(2);
+  }else if(from===2){
+    if(materials.length===0){
+      toast('Sin materiales','Agrega al menos un material para cotizar.');return;
+    }
+    buildReview();wizGo(3);
+  }
+}
+function addMat(){
+  const nm=document.getElementById('matName').value.trim();
+  const qty=document.getElementById('matQty').value;
+  const unit=document.getElementById('matUnit').value;
+  if(!nm||!qty){toast('Dato incompleto','Completa material y cantidad.');return;}
+  materials.push({nm,qty,unit});
+  document.getElementById('matName').value='';
+  document.getElementById('matQty').value='';
+  renderMats();
+}
+function renderMats(){
+  const box=document.getElementById('matList');
+  if(materials.length===0){
+    box.innerHTML='<div class="empty">Aún no hay materiales agregados.</div>';return;
+  }
+  box.innerHTML='';
+  materials.forEach((m,i)=>{
+    const it=el('div','mat-item');
+    it.innerHTML=`<span><b>${m.nm}</b></span>
+      <span class="mq">${m.qty}</span><span style="color:var(--ink-3)">${m.unit}</span>
+      <button class="x" onclick="delMat(${i})">×</button>`;
+    box.appendChild(it);
+  });
+}
+function delMat(i){materials.splice(i,1);renderMats();}
+function buildReview(){
+  const b=document.getElementById('reviewBox');
+  const matTxt=materials.map(m=>`${m.nm} — ${m.qty} ${m.unit}`).join(' · ');
+  b.innerHTML=`
+    <div class="rr"><span class="rk">Proyecto</span><span class="rv">${document.getElementById('prjName').value}</span></div>
+    <div class="rr"><span class="rk">Categoría</span><span class="rv">${document.getElementById('prjCat').value}</span></div>
+    <div class="rr"><span class="rk">Fecha de entrega</span><span class="rv">${document.getElementById('prjDate').value||'Por definir'}</span></div>
+    <div class="rr"><span class="rk">Materiales (${materials.length})</span><span class="rv" style="max-width:60%;text-align:right">${matTxt}</span></div>
+    <div class="rr"><span class="rk">Ventana de subasta</span><span class="rv">24–72 horas</span></div>`;
+}
+let rfqCounter=512;
+function submitRFQ(){
+  rfqCounter++;
+  const folio='SA-0'+rfqCounter;
+  // add to supplier portal list
+  openRFQs.unshift({
+    folio:folio,
+    title:document.getElementById('prjName').value,
+    cat:document.getElementById('prjCat').value,
+    items:materials.length,
+    matList:materials.map(m=>`${m.nm} (${m.qty} ${m.unit})`),
+    window:"72 h",
+    offers:0,
+    client:"Tu empresa"
+  });
+  renderRFQGrid();
+  document.querySelectorAll('.wiz-pane').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.wiz-tab').forEach(t=>{t.classList.remove('active');t.classList.add('done')});
+  document.getElementById('rfqFolio').textContent='#'+folio;
+  document.getElementById('rfqSuccess').classList.add('show');
+  toast('RFQ #'+folio+' creada','Visible ahora en el Portal de Proveedores.');
+}
+function resetWizard(){
+  materials=[];
+  document.getElementById('prjName').value='';
+  document.getElementById('prjNotes').value='';
+  document.getElementById('prjDate').value='';
+  document.getElementById('rfqSuccess').classList.remove('show');
+  renderMats();
+  wizGo(1);
+}
+renderMats();
+
+/* ======================= PORTAL PROVEEDOR ======================= */
+let openRFQs=[
+  {folio:"SA-0512",title:"Cemento, fierro y agregados — Proyecto Vivienda",cat:"Materiales de construcción",
+   items:3,matList:["Cemento Portland Tipo I (500 bolsas)","Fierro corrugado 1/2\" (2 ton)","Arena gruesa (14 m³)"],
+   window:"En vivo",offers:4,client:"Constructora Huascarán"},
+  {folio:"SA-0509",title:"Instalación eléctrica — Edificio Municipal",cat:"Electricidad e iluminación",
+   items:5,matList:["Cable THW 12 AWG (800 m)","Tablero trifásico (2 u)","Luminarias LED (60 u)","Tubería conduit (120 m)","Interruptores (40 u)"],
+   window:"48 h",offers:2,client:"Municipalidad Provincial"},
+  {folio:"SA-0506",title:"Acabados y pintura — Remodelación Local",cat:"Pintura y acabados",
+   items:4,matList:["Pintura látex blanco (40 gal)","Empaste (25 bolsas)","Lijas surtidas (10 caja)","Rodillos y brochas (1 caja)"],
+   window:"24 h",offers:3,client:"Inversiones del Valle"}
+];
+function renderRFQGrid(){
+  const g=document.getElementById('rfqGrid');
+  g.innerHTML='';
+  openRFQs.forEach((r,idx)=>{
+    const live=r.window==="En vivo";
+    const c=el('div','card hov');
+    c.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+        <div>
+          <div class="mono" style="font-size:11px;color:var(--ink-3)">RFQ #${r.folio}</div>
+          <h4 style="font-size:17px;margin:5px 0 3px">${r.title}</h4>
+          <span class="bdg s">${r.cat}</span>
+        </div>
+        <span class="bdg ${live?'r':'a'}">${live?'● EN VIVO':'⏱ '+r.window}</span>
+      </div>
+      <div style="margin:14px 0;padding:12px;background:var(--bg-2);border-radius:5px">
+        <div class="mono" style="font-size:10.5px;color:var(--ink-3);margin-bottom:6px">${r.items} ÍTEMS · CLIENTE: ${r.client.toUpperCase()}</div>
+        <div style="font-size:12.5px;color:var(--ink-2);line-height:1.7">${r.matList.slice(0,3).join(' · ')}${r.matList.length>3?' · +'+(r.matList.length-3)+' más':''}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span class="mono" style="font-size:12px;color:var(--ink-2)">${r.offers} ofertas recibidas</span>
+        <button class="btn btn-primary btn-sm" onclick="makeOffer(${idx})">Enviar oferta</button>
+      </div>`;
+    g.appendChild(c);
+  });
+}
+function makeOffer(idx){
+  const r=openRFQs[idx];
+  r.offers++;
+  renderRFQGrid();
+  toast('Oferta registrada','Tu propuesta para RFQ #'+r.folio+' fue enviada.');
+}
+renderRFQGrid();
+
+/* ======================= DASHBOARD ======================= */
+DATA.kpis.forEach(k=>{
+  const c=el('div','card kpi');
+  c.innerHTML=`<div class="kpi-ic" style="font-family:'IBM Plex Mono';color:var(--amber);font-weight:600">${k.ic}</div>
+    <div class="kv">${k.v}<span class="u">${k.u}</span></div>
+    <div class="kl">${k.l}</div>
+    <div class="kt ${k.dir}">${k.dir==='up'?'▲':'▼'} ${k.t}</div>`;
+  document.getElementById('kpiGrid').appendChild(c);
+});
+
+(function seasonChart(){
+  const wrap=document.getElementById('seasonChart');
+  const max=1.5;
+  DATA.season.forEach((s,i)=>{
+    const bar=el('div','sc-bar');
+    bar.innerHTML=`<div class="col ${s.lvl}" style="height:0" data-h="${(s.i/max*100)}">
+      <span class="val">${s.i.toFixed(2)}</span></div><div class="mo">${s.m}</div>`;
+    wrap.appendChild(bar);
+    setTimeout(()=>{bar.querySelector('.col').style.height=(s.i/max*100)+'%';},120+i*55);
+  });
+})();
+
+DATA.alerts.forEach(a=>{
+  const it=el('div','alert-it '+a.lvl);
+  it.innerHTML=`<div class="ai">${a.ai}</div><div><b>${a.t}</b><p>${a.d}</p></div>`;
+  document.getElementById('alertList').appendChild(it);
+});
+
+DATA.seasonCat.forEach(s=>{
+  const tr=el('tr',null,`<td><b style="font-family:'Saira Condensed'">${s.c}</b></td>
+    <td><span class="bdg r">${s.a}</span></td>
+    <td><span class="bdg g">${s.b}</span></td>
+    <td style="color:var(--ink-2)">${s.ac}</td>`);
+  document.getElementById('seasonTbl').appendChild(tr);
+});
+
+/* ======================= PROVEEDORES ======================= */
+function scoreColor(s){return s>=8?'var(--green)':s>=6?'var(--yellow)':'var(--red)';}
+DATA.suppliers.forEach(s=>{
+  const col=scoreColor(s.score);
+  const c=el('div','card hov sup-card');
+  c.innerHTML=`
+    <div class="sup-top">
+      <div class="sup-id">
+        <div class="sup-av">${s.ab}</div>
+        <div><b>${s.nm}</b><div class="cat">${s.cat}</div></div>
+      </div>
+      <div class="score-ring">
+        <div class="sv" style="color:${col}">${s.score}</div>
+        <div class="sl">Score</div>
+      </div>
+    </div>
+    <div class="sup-stats">
+      <div class="sup-stat"><div class="v">${s.onTime}%</div><div class="l">Entregas a tiempo</div></div>
+      <div class="sup-stat"><div class="v">${s.won}</div><div class="l">Subastas ganadas</div></div>
+      <div class="sup-stat"><div class="v">${s.quality}</div><div class="l">Índice de calidad</div></div>
+      <div class="sup-stat"><div class="v">${s.days} días</div><div class="l">Plazo promedio</div></div>
+    </div>
+    <div class="score-bar"><i style="width:${s.score*10}%;background:${col}"></i></div>
+    <div style="margin-top:10px">${s.score<6?'<span class="bdg r">Inhabilitado</span>':s.score<6.5?'<span class="bdg y">Suspensión preventiva</span>':'<span class="bdg g">Habilitado</span>'}</div>`;
+  document.getElementById('supGrid').appendChild(c);
+});
+
+DATA.scoreCriteria.forEach(s=>{
+  const tr=el('tr',null,`<td>${s.c}</td>
+    <td><span class="bdg a">${s.w}</span></td>
+    <td style="color:var(--ink-2)">${s.m}</td>`);
+  document.getElementById('scoreTbl').appendChild(tr);
+});
+
+/* ======================= CONTINGENCIAS ======================= */
+DATA.risks.forEach(r=>{
+  const bcls=r.n==='critico'?'r':r.n==='alto'?'y':'s';
+  const c=el('div','risk-card '+r.n);
+  c.innerHTML=`<h4>${r.r}<span class="bdg ${bcls}">${r.n.toUpperCase()}</span></h4>
+    <div class="risk-meters">
+      <div class="rm">Probabilidad<b>${r.p}</b></div>
+      <div class="rm">Impacto<b>${r.i}</b></div>
+    </div>`;
+  document.getElementById('riskGrid').appendChild(c);
+});
+
+DATA.protocols.forEach((p,i)=>{
+  const box=el('div','proto');
+  box.innerHTML=`
+    <div class="proto-head" onclick="this.parentElement.classList.toggle('open')">
+      <span class="proto-tag">${p.tag}</span>
+      <h4>${p.t}</h4>
+      <span class="arr">▶</span>
+    </div>
+    <div class="proto-body"><div class="proto-body-in">
+      ${p.ph.map(ph=>`<div class="proto-phase">
+        <div class="ph-t">${ph.p}</div><p>${ph.d}</p></div>`).join('')}
+    </div></div>`;
+  document.getElementById('protoList').appendChild(box);
+  if(i===0)box.classList.add('open');
+});
+
+/* ======================= IMPLEMENTACIÓN ======================= */
+DATA.phases.forEach(p=>{
+  const it=el('div','tl-item');
+  it.innerHTML=`<div class="tl-dot">${p.n}</div>
+    <div class="tl-head"><h4>Fase ${p.n} — ${p.t}</h4><span class="tl-meta">${p.meta}</span></div>
+    <p>${p.d}</p>`;
+  document.getElementById('phaseTL').appendChild(it);
+});
+DATA.budget.forEach(b=>{
+  const tr=el('tr',null,`<td>${b.c}</td>
+    <td style="text-align:right;font-family:'IBM Plex Mono';color:var(--amber)">${b.v}</td>`);
+  document.getElementById('budgetTbl').appendChild(tr);
+});
+DATA.metrics.forEach(m=>{
+  const tr=el('tr',null,`<td><b style="font-family:'Saira Condensed'">${m.i}</b></td>
+    <td style="color:var(--ink-3)" class="mono">${m.b}</td>
+    <td><span class="bdg g">${m.o}</span></td>`);
+  document.getElementById('metricTbl').appendChild(tr);
+});
+</script>
+</body>
+</html>
